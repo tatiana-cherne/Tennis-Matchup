@@ -1,0 +1,28 @@
+Source: https://data.cityofnewyork.us/Recreation/Directory-of-Tennis-Courts/dies-sqgi/
+JSON Source: http://www.nycgovparks.org/bigapps/DPR_Parks_001.json
+
+Prop_ID: A unique identifier for the property. The first character is a 
+abbreviation of the borough,followed by a 3 digit number. Anything 
+after the first 4 characters represents a subproperty.
+    Boroughs:
+    X - Bronx
+    B - Brooklyn
+    M - Manhattan
+    Q - Queens
+    R - Staten Island
+
+Name: Name of the property
+
+Location: Text location
+
+Phone: Phone number of the property
+
+Courts: Number of courts in the property
+
+Indoor_Outdoor: Indoor or Outdoor tennis court
+
+Tennis_Type: Tennis court surface type
+
+Accessible: (Y)es or (N)o - wheelchair accessible
+
+Info: Additional Information

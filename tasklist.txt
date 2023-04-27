@@ -1,0 +1,14 @@
+Created database schema on db diagram.io
+Initiated datatables on model.py via SQLAlchemy and Flask
+    players
+    player_courts
+    ratings
+    activities
+    courts
+    pairings
+Created script to generate dataset of 100 players
+Inputed court info from NYC parks
+Created script to seed database for ratings and pairings
+
+Returned to court data to include lat / lon
+Created new datable users, adjusted others accordingly
