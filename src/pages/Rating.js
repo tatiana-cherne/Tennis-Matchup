@@ -7,6 +7,7 @@ export default function Rating(props) {
   const { pid, aid } = useParams();
   const data = useLoaderData();
   const navigate = useNavigate();
+  console.log(data)
 
   const [formData, setFormData] = useState({
     playerId: pid,
@@ -17,8 +18,8 @@ export default function Rating(props) {
 
   if (!loggedIn) {
     return (    
-    <div>
-    <h2>Hi friend, to submit a rating please log in.</h2>
+    <div className="d-flex justify-content-center align-items-center player-profile-unauth" >>
+      <h2>Hi friend, to submit a rating please log in.</h2>
     </div>
     )
   }
@@ -58,13 +59,13 @@ export default function Rating(props) {
               <form id="rating-form"onSubmit={handleSubmit}>
                 <div className="player-rating-info">
                   <img 
-                        src={data.photo}
+                        src={data.player.photo}
                         alt="Profile"
                         className="rating-picture"
                       />
                   <div>
-                    <h5 style={{ color: 'black' }}>Player: {data.fname} {data.lname}</h5>
-                    <span> Currently rated { data.skill_lvl.toFixed(1) }</span>
+                    <h5 style={{ color: 'black' }}>Player: {data.player.fname} {data.player.lname}</h5>
+                    <span> Currently rated { data.player.skill_lvl.toFixed(1) }</span>
                   </div>  
                 </div>
 

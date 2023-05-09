@@ -204,6 +204,7 @@ table {
   width: 100%;
 }
 
+
 .overlay-text {
   position: absolute;
   width: 80%;
@@ -313,4 +314,11 @@ table {
 .sign-up-btn {
   background:var(--primary);
   border-color: var(--primary);
+}
+
+.player-profile-unauth {
+  position: absolute;
+  height: 50vh;
+  width: 100%;
+  text-align: center;
 }

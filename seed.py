@@ -139,12 +139,33 @@ for i in range(a_count):
     # Choose 2 players from activity and submit 1 rating
     player1, player2 = rating_pair = sample(players_on_court, 2)
 
+    # Create sample comments
+    comments =[
+        "Great Serve! Hard to return.",
+        "Fantastic Sportsmanship.",
+        "Made questionable calls",
+        "Plays at a professional level!",
+        "Not very consistent.",
+        "Great at rallying.",
+        "The best tennis player in NYC!",
+        "Good.",
+        "Not a strategic player, but fun.",
+        "Plays a serve and volley game, lookout!",
+        "Will play together again.",
+        "Strong baseliner with good footwork.",
+        "Showed up late.",
+        "Always enjoy hitting with them!",
+        "OK.",
+        "Better at pickleball.",
+        "Defensive player."
+    ]
+
     db_rating_1 = crud.create_rating(
         player_id = player1.id,
         commenter_id = player2.id,
         activity_id = db_activity.id,
         lvl_rating = choice([2.5, 3.0, 3.5, 4.0, 4.5, 5.0]),
-        comments = f"Comments on Player",
+        comments = choice(comments),
         created_at = random_date)
     
     db_rating_2 = crud.create_rating(
@@ -152,7 +173,7 @@ for i in range(a_count):
         commenter_id = player1.id,
         activity_id = db_activity.id,
         lvl_rating = choice([2.5, 3.0, 3.5, 4.0, 4.5, 5.0]),
-        comments = f"Comments on Player",
+        comments = choice(comments),
         created_at = random_date)
     
     model.db.session.add(db_rating_1, db_rating_2)

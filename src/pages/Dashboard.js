@@ -420,7 +420,7 @@ export function Activities(props) {
               {new Date(a.date) > new Date() ? 'Activity Scheduled' :
                 a.rating !== null ? a.rating.toFixed(1) :
                 <Link className="player-rating-link" to={`/rating/${a.partner_id}/${a.activity_id}`}>
-                  Submit Rating
+                  Submit
                 </Link>
               }
             </td>

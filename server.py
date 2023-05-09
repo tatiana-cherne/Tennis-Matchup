@@ -297,6 +297,7 @@ def show_player(player_id):
     ratings = to_dict(ratings)
 
     player_info = {
+        "id" : player.id,
         "fname" : player.fname,
         "lname" : player.lname,
         "gender" : player.gender,

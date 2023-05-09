@@ -5,7 +5,7 @@ export default function PlayerProfile(props) {
   const { loggedIn } = props;
 
   const { id } = useParams();
-  const d = useLoaderData()
+  const d = useLoaderData();
 
   const joinDate = new Date(d.player.join_date);
   const formattedDate = joinDate.toLocaleDateString("en-US", { month: 'long', day: 'numeric', year: 'numeric' });
@@ -50,15 +50,15 @@ export default function PlayerProfile(props) {
           <thead>
             <tr>
               <th>Date</th>
-              <th>Skill Level Rating</th>
-              <th>Comments</th>
+              <th>Skill Level</th>
+              <th style={{ width: '50%' }}>Comments</th>
             </tr>
           </thead>
           <tbody>
             {d.ratings.map((r) => (
               <tr key={r.id}>
                 <td>{new Date(r.created_at).toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric'})}</td>
-                <td>{r.lvl_rating}</td>
+                <td>{r.lvl_rating.toFixed(1)}</td>
                 <td>{r.comments}</td>
               </tr>
             ))}

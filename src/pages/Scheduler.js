@@ -18,8 +18,8 @@ export default function Scheduler(props) {
 
     if (!loggedIn) {
     return (    
-    <div>
-    <h2>Hi friend, to see your dashboard please log in.</h2>
+    <div className="d-flex justify-content-center align-items-center player-profile-unauth" >
+      <h2>Hi friend, to see your dashboard please log in.</h2>
     </div>
     )
   }
