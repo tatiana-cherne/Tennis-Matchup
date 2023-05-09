@@ -5,7 +5,7 @@ export default function NotFound() {
     <div>
       <h2>You seem lost my friend.</h2>
 
-      <h4>Let's return <NavLink to="/">Home</NavLink>.</h4>
+      <h4>Let's return <NavLink to="/">home</NavLink>.</h4>
     </div>
   )
 }

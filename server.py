@@ -10,16 +10,18 @@ import crud
 from hashlib import sha256
 import os
 import redis
-# import cloudinary.uploader
+import cloudinary
+from cloudinary.uploader import upload
+from cloudinary.utils import cloudinary_url
+
 
 from jinja2 import StrictUndefined
 
 app = Flask(__name__)
 
 # Secret key is used to cryptographically-sign the cookies used for storing the session id
-app.secret_key = "asdfjkln4389htia72342390iokje"
+app.secret_key = os.environ["FLASK_SECRET"]
 app.jinja_env.undefined = StrictUndefined
-
 
 # Configure Redis for storing the session data on the server-side
 app.config["SESSION_TYPE"] = "redis"
@@ -27,70 +29,36 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_USE_SIGNER"] = True
 app.config["SESSION_REDIS"] = redis.from_url("redis://localhost:6379")
 
-# app.config["SESSION_COOKIE_SAMESITE"] = "None"
-app.config["SESSION_COOKIE_SECURE"] = True
-app.config['SESSION_COOKIE_HTTPONLY'] = True
-
-
 # Create and initialize the Flask-Session object AFTER configurations
 server_session = Session(app)
 
-# CORS(app, supports_credentials = True, resources={r"/*": {"origins": "http://localhost:3000/"}})
 # Initialize cross-origin requests
 CORS(app, supports_credentials=True)
-# CORS(app, resources={r'/*': {'origins': '*'}, 'expose_headers': 'Authorization', 'allow_headers': ['Content-Type']})# CORS(app, supports_credentials=True)
 
-# # Set the session cookie to be secure and HTTP-only
-
-# app.config['CORS_HEADERS'] = 'Content-Type'
-# app.config['CORS_SUPPORTS_CREDENTIALS'] = True
-# # app.config['SESSION_COOKIE_DOMAIN'] = "127.0.0.1"
-
-CLOUDINARY_KEY = os.environ["CLOUDINARY_KEY"]
-CLOUDINARY_SECRET = os.environ["CLOUDINARY_SECRET"]
-CLOUD_NAME = "tennismatchup"
+# Cloudinary configuration
+cloudinary.config(
+  cloud_name = "tennismatchup",
+  api_key = os.environ["CLOUDINARY_KEY"],
+  api_secret = os.environ["CLOUDINARY_SECRET"],
+  secure = True
+)
 
 connect_to_db(app)
-
-# @app.after_request
-# def add_cors_headers(response):
-#     response.headers.add("Access-Control-Allow-Origin", "http://localhost:3000")
-#     response.headers.add("Access-Control-Allow-Credentials", "true")
-#     return response
-
-# @app.after_request
-# def add_cors_headers(response):
-#     # Allow requests from other port
-#     response.headers.add("Access-Control-Allow-Origin", "http://localhost:3000")
-
-# #     # Allow credentials for all responses
-#     response.headers.add('Access-Control-Allow-Credentials', 'true')
-
-# #     # Set allowed headers for CORS requests
-#     response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-
-#     # Set allowed methods for CORS requests
-#     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
-
-#     return response
-
 
 def to_dict(objects):
     """Converts list of SQLAlchemy objects to list of dictionaries to prep for jsonify."""
 
     # Convert the list of Player objects to a list of dictionaries
-    dict_list = [o.__dict__ for o in objects]
+    dict_list = [o.__dict__ if o is not None else o for o in objects]
 
     # Remove the SQLAlchemy-specific attributes from each dictionary
     for o in dict_list:
-        o.pop("_sa_instance_state", None)
-        
-        date = o.get("join_date", None)
-        if date is not None:
-            o["join_date"] = o["join_date"].isoformat()
-    
-    if len(dict_list) == 1:
-        return dict_list[0]
+        if o is not None:
+            o.pop("_sa_instance_state", None)
+            
+            date = o.get("join_date", None)
+            if date is not None:
+                o["join_date"] = o["join_date"].isoformat()
     
     return dict_list
 
@@ -106,17 +74,46 @@ def homepage():
 def dashboard():
     """View dashboard page."""
 
-    # # Check if user is logged in
-    # if "email" in session:
-    #     # User is logged in
-    #     player = crud.get_player_by_id(session["id"])
-    #     return render_template("dashboard.html", player=player)
-    # else:
-    #     # User is not logged in, redirect to homepage
-    #     return redirect("/")
-    # session["id"] = 2
+    print(session)
+    # Authenticate user
+    if "email" in session:
+        player = crud.get_player_by_id(session["id"])
 
-    return jsonify({"id": session["id"] })
+        # #need to star preferred court
+        courts = player.courts
+        ratings_given = player.ratings_given
+        ratings_received = player.ratings_received
+        activities = crud.get_history(player)
+
+        player_info = {
+            "fname" : player.fname,
+            "lname" : player.lname,
+            "gender" : player.gender,
+            "skill_lvl" : player.skill_lvl,
+            "game_pref" : player.game_pref, 
+            "join_date" : player.join_date,
+            "pref_court" :player.pref_court_id,
+            "photo" : player.photo
+        }
+
+        courts = to_dict(courts)
+        ratings_given = to_dict(ratings_given)
+        ratings_received = to_dict(ratings_received)
+
+        dashboard = {
+            "player": player_info,
+            "courts": courts,
+            "ratingsG": ratings_given,
+            "ratingsR": ratings_received,
+            "activities": activities
+        }
+
+        return jsonify(dashboard), 200
+    else:
+        # User is not logged in, redirect to homepage
+        return jsonify({"message": "Could not authenticate user."}), 401
+
+
 
 
 @app.route("/welcome", methods=["POST"])
@@ -168,31 +165,23 @@ def login():
     hashed_password = sha256(password.encode()).hexdigest()
     user = User.query.filter_by(email=email).first()
 
+    print(user.password)
+    print(hashed_password)
+
     if user and user.password == hashed_password:
         session["id"] = user.player_id
         session["email"] = email
 
-        print(f"$$$$$$$$$${session}")
         return jsonify({"id": session["id"] }), 200
     else:
         return jsonify({"message": "Incorrect username or password"}), 401
-
-
-# @app.route("/status")
-# def status():
-#     """Confirm authorization status."""
-
-#     if session["id"]:
-#         return jsonify({"status": "true"})
-#     else:
-#         return jsonify({"status": "false"})
 
 
 @app.route("/reset-password")
 def reset_password():
     """Display form for password recovery."""
 
-    return render_template("reset_password.html")
+    pass
 
 
 @app.route("/send-recovery-email", methods=['POST'])
@@ -230,9 +219,33 @@ def show_court(court_id):
 
     court = crud.get_court_by_id(court_id)
 
-    court_dict = to_dict([court])
+    players = court.players
+    activities = court.activities
 
-    return jsonify(court_dict)
+    players = to_dict(players)
+    activities = to_dict(activities)
+
+    court_info = {
+            "id" : court.id,
+            "borough" : court.borough,
+            "name" : court.name,
+            "location" : court.location,
+            "phone" : court.phone, 
+            "court_count" : court.court_count,
+            "indoor_outdoor" : court.indoor_outdoor,
+            "surface" : court.surface,
+            "accessible" : court.accessible,
+            "lat" : court.lat,
+            "long" : court.long
+        }
+    
+    court_page = {
+            "court": court_info,
+            "players": players,
+            "activities": activities
+    }
+
+    return jsonify(court_page)
 
 
 @app.route("/courts-players")
@@ -264,19 +277,9 @@ def all_players():
 @app.route("/friends")
 def friends():
     """Returns JSON of all friends."""
-    if 'session' in request.cookies:
-        print("***************")
-        print(session)
-    else:
-        print("*******BIG SAD******")
-
-    print(session["id"])
 
     player = crud.get_player_by_id(session["id"])
-    print(player)
     friends = crud.get_friends(player)
-    print(friends)
-
     friends_dict = to_dict(friends)
 
     return jsonify(friends_dict)
@@ -287,64 +290,112 @@ def show_player(player_id):
     """Show player profile page."""
 
     player = crud.get_player_by_id(player_id)
-    player_dict = to_dict([player])
+    court = crud.get_court_by_id(player.pref_court_id)
+    ratings = player.ratings_received
 
-    return jsonify(player_dict)
+    court = to_dict([court])
+    ratings = to_dict(ratings)
+
+    player_info = {
+        "fname" : player.fname,
+        "lname" : player.lname,
+        "gender" : player.gender,
+        "skill_lvl" : player.skill_lvl,
+        "game_pref" : player.game_pref, 
+        "join_date" : player.join_date,
+        "pref_court" :player.pref_court_id,
+        "photo" : player.photo
+    }
+
+    player_profile = {
+        "player" : player_info,
+        "court": court[0],
+        "ratings": ratings
+    }
+
+    return jsonify(player_profile)
 
 
-# @app.route("/scheduler")
-# def schedule_session():
-#     """Create a hitting session."""
+@app.route("/pref-court", methods=["POST"])
+def pref_court():
+    """Update player preferred Court."""
 
-#     courts = Court.query.all()
-#     players = Player.query.all()
+    try:
+        player = crud.get_player_by_id(session["id"])
 
-#     return render_template("scheduler.html", courts=courts, players=players, int=int)
+        player.pref_court_id = request.json["courtId"]
+        
+        db.session.commit()
+
+        return jsonify({"message": "Preferred court updated."}), 200
+    
+    except:
+        return jsonify({"message": "Could not update preferred court."}), 500
 
 
 @app.route("/upload-photo", methods=["POST"])
 def upload_photo():
-    """Add a photo session."""
+    """Add profile photo from cloudinary."""
     
-    photo = request.files["photo"]
-    player_id = request.form["player_id"]
-
-    result = cloudinary.uploader.upload(photo,
-        api_key=CLOUDINARY_KEY,
-        api_secret=CLOUDINARY_SECRET,
-        cloud_name=CLOUD_NAME)
-    
-    img_url = result["secure_url"]
+    photo = request.files["file"]
+    player_id = session["id"]
+    response = upload(photo, public_id=f"playerphotos/{player_id}")
+ 
+    url, options = cloudinary_url(response['public_id'], width=200, height=200, crop="fill")
 
     player = Player.query.get(player_id)
-    player.photo = img_url
+    player.photo = url
     db.session.commit()
-    
-    return redirect("/dashboard")
+
+    return jsonify({"url": url}), 200
 
 
-@app.route("/submit-rating")
+@app.route("/remove-photo")
+def remove_photo():
+    """Remove profile photo from cloudinary."""
+
+    player_id = session["id"]
+    response = cloudinary.uploader.destroy(f"playerphotos/{player_id}")
+    print(response)
+
+    player = Player.query.get(player_id)
+    player.photo = None
+    db.session.commit()
+
+    if response["result"] == "ok":
+        return jsonify({"message": "Photo deletion successful."}), 200
+    else:
+        return jsonify({"message": "Error deleting photo: " + response["result"]}), 500
+
+
+@app.route("/submit-rating", methods=["POST"])
 def submit_rating():
     """Submit a player rating."""
-    
-    # new_rating = crud.create_rating(
-    #    player=player,
-    #    commenter=session["id"],
-    #    activity=activity,
-    #    lvl_rating=lvl_rating,
-    #    comments=comments,
-    #    created_at=created_at)
-    
-    # db.session.add(new_activity)
-    # db.session.commit()
 
-    return redirect("/dashboard")
+    try:
+        new_rating = crud.create_rating(
+            player_id = request.json["playerId"], 
+            commenter_id = session["id"],
+            activity_id = request.json["activityId"], 
+            lvl_rating = request.json["rating"], 
+            comments = request.json["comments"], 
+            created_at = datetime.now())
+        
+        print(new_rating)
 
+        db.session.add(new_rating)
+        db.session.commit()
+
+        return jsonify({"message": "Rating submission successful"}), 200
+    
+    except:
+        return jsonify({"message": "Could not submit new rating."}), 500
 
 
 @app.route("/submit-schedule", methods=["POST"])
 def submit_schedule():
     """ Submit new session info."""
+
     try:
         new_activity = crud.create_activity(
             date=datetime.strptime(request.json["datetime"], "%Y-%m-%dT%H:%M"),
@@ -352,8 +403,8 @@ def submit_schedule():
             match_type=request.json["matchType"]
         )
         
-        player_self = crud.get_player_by_id(request.form["schedulingPlayer"]) 
-        player_other = crud.get_player_by_id(request.form["hittingPartner"])
+        player_self = crud.get_player_by_id(request.json["schedulingPlayer"]) 
+        player_other = crud.get_player_by_id(request.json["hittingPartner"])
 
         new_activity.players = [player_self, player_other]
         
@@ -361,8 +412,63 @@ def submit_schedule():
         db.session.commit()
 
         return jsonify({"message": "Scheduling successful"}), 200
+    
     except:
         return jsonify({"message": "Could not submit new schedule."}), 500
+
+
+@app.route("/delete-activity", methods=["POST"])
+def delete_activity():
+    """ Delete future activitiy and repective pairing."""
+
+    try:
+        activity = crud.get_activity_by_id(request.json["id"])
+
+        db.session.delete(activity)
+        db.session.commit()
+
+        return jsonify({"message": "Deletion successful"}), 200
+    
+    except:
+        return jsonify({"message": "Could not delete activity."}), 500
+
+
+@app.route("/add-court", methods=["POST"])
+def add_court():
+    """ Add court to player's favorites."""
+    
+    try:
+        player = player = crud.get_player_by_id(session["id"])
+        court = crud.get_court_by_id(request.json["courtId"])
+        
+        player.courts.append(court)
+
+        db.session.commit()
+
+        return jsonify({"message": "Court added successfully."}), 200
+    
+    except:
+        return jsonify({"message": "Could not add court."}), 500
+    
+
+@app.route("/delete-court", methods=["POST"])
+def delete_court():
+
+    try:
+        player = crud.get_player_by_id(session["id"])
+        court = crud.get_court_by_id(request.json["courtId"])
+
+        if player.pref_court_id == court.id:
+            player.pref_court_id = None
+
+        player.courts.remove(court)
+        
+        db.session.commit()
+
+        return jsonify({"message": "Court deleted successfully."}), 200
+    
+    except:
+        return jsonify({"message": "Could not delete court."}), 500
 
 
 if __name__ == "__main__":

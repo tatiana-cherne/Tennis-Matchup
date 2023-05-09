@@ -15,8 +15,8 @@ import PlayerProfile, {PlayerProfileLoader} from './pages/PlayerProfile'
 import Courts, {CourtsLoader} from './pages/Courts'
 import CourtProfile, {CourtProfileLoader} from './pages/CourtProfile'
 import Scheduler, {CourtsPlayersLoader} from './pages/Scheduler'
-import Dashboard from './pages/Dashboard'
-import Rating from './pages/Rating'
+import Dashboard, {DashboardLoader} from './pages/Dashboard.js'
+import Rating, {RatingLoader} from './pages/Rating'
 import NotFound from './pages/NotFound'
 // layouts
 import RootLayout from './layouts/RootLayout'
@@ -55,18 +55,19 @@ function App() {
           loader={PlayerProfileLoader}
           />
         <Route 
-          path="scheduler" 
+          path="scheduler/:id" 
           element={<Scheduler loggedIn={loggedIn} />}
           loader={CourtsPlayersLoader}
           />
          <Route 
-          path="rating" 
+          path="rating/:pid/:aid" 
           element={<Rating loggedIn={loggedIn} />}
-          // loader={CourtsPlayersLoader}
+          loader={RatingLoader}
           />
         <Route 
           path="dashboard" 
           element={<Dashboard loggedIn={loggedIn} />}
+          loader={DashboardLoader}
           />
         <Route path="*" element={<NotFound />} />
       </Route>

@@ -16,7 +16,15 @@ h1, h2, h4, h5, h6 {
 
 p {
   margin: 20px 0;
+  color: white;
+  font-size: 18px;
 }
+
+
+p.popup-signup {
+  color: black
+}
+
 button {
   border: 0;
   padding: 8px;
@@ -30,21 +38,55 @@ button {
 header nav {
   display: flex;
   gap: 16px;
-  justify-content: end;
+  justify-content: space-between;
+  align-items: center;
   max-width: 1200px;
   margin: 0 auto;
+  padding: 10px;
   background: var(--secondary);
+  text-align: right;
+}
+
+header nav h1 {
+  margin-right: auto;
+  font-family: bradley hand, cursive;
+  font-size: 30px;
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0;
+}
+
+#logo {
+  height: 70px;
 }
 
 nav a {
   color: white;
   text-decoration: none;
+  display: inline-block;
+
 }
 
 nav a:hover,
 nav a:active {
   color:var(--primary);
   text-decoration: none;
+}
+
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.nav-right > * {
+  margin-left: 10px;
 }
 
 header nav a{
@@ -56,6 +98,14 @@ header nav a.active {
 }
 
 /* table */
+table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+#court-table {
+  color: white;
+}
 
 /* popup */
 .popup {
@@ -100,18 +150,167 @@ header nav a.active {
   line-height: 30px;
   font-size: 16px;
 }
-/* 
+
 .profile-picture {
-  width: 150px;
-  height: 150px;
+  width: 300px;
+  height: 300px;
   object-fit: cover;
   border-radius: 50%;
-} */
+}
+
+.activity-table-picture{
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 50%;
+}
 
 
-/* <img
-              src="https://mdbootstrap.com/img/new/avatars/8.jpg"
-              alt=""
-              style="width: 45px; height: 45px"
-              class="rounded-circle"
-              /> */
+/* PLAYERS PAGE */
+.player-picture {
+  max-width: 200px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+#player-cards {
+  opacity: 0.8;
+  background-color: transparent;
+}
+
+#player-card-info {
+  text-align: center;
+  font-size: 20px;
+}
+
+.card-title a {
+  color: white; 
+}
+
+.card-title a:hover {
+  color: var(--primary)
+}
+
+/* HOME PAGE  */
+.home {
+  position: relative;
+}
+
+.image-container {
+  position: relative;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.overlay-text {
+  position: absolute;
+  width: 80%;
+  top: 20%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--primary);
+  text-align: center;
+  font-size: 40px;
+  font-weight: bold;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 20px;
+  border-radius: 20px;
+}
+
+/* DASHBOARD AND PLAYER PROFILES */
+.profile-page {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+.photo-and-info {
+  display: flex; 
+  align-items: center;
+  justify-content: space-between; 
+  padding: 10px;
+  gap: 100px;
+
+}
+
+.player-info {
+  border: 2px solid white;
+  padding: 30px;
+}
+
+.photo-and-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  
+}
+.photo-buttons {
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
+  padding-top: 10px
+}
+
+.player-schedule-link {
+  display: inline-block;
+  font-size: 24px;
+  padding: 10px;
+  margin-top: 20px;
+  color: white;
+  background-color: var(--primary);
+  text-decoration: none;
+}
+
+.player-rating-link {
+  display: inline-block;
+  padding: 10px;
+  color: white;
+  background-color: var(--primary);
+  text-decoration: none;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.rating-picture {
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.player-rating-info {
+  display: flex;
+  align-items: center;
+  padding-bottom: 20px;
+  gap: 30px;
+}
+
+.court-add-btn {
+  background-color: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+.court-add-btn:active {
+  background-color: var(--primary-darker);
+  border-color: var(--primary-darker);
+}
+
+
+/* COURTS PAGE */
+.court-player-picture {
+  max-width: 150px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.sign-up-btn {
+  background:var(--primary);
+  border-color: var(--primary);
+}

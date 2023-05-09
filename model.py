@@ -93,7 +93,7 @@ class Activity(db.Model):
     ratings = db.relationship("Rating", back_populates="activity")
 
     def __repr__(self):
-        return f"<Activity={self.id}"
+        return f"<Activity={self.id}>"
     
 
 class Court(db.Model):

@@ -54,29 +54,29 @@ export default function Signup() {
 
 
   return (
-    <div className="container mt-5">
+    <div className="container mt-5 col-6">
       <div className="card">
-        <div className="card-header">
+      <div className="card-header bg-secondary text-white text-center">
           <h3>Sign up to match up</h3>
         </div>
         <div className="card-body">
           {alertMessage}
           <form onSubmit={handleSubmit}>
             <div className="row">
-              <div className="col-sm-6 form-group">
+              <div className="col-6 form-group">
                 <input
                   type="text"
-                  className="form-control form-control-sm"
+                  className="form-control form-control"
                   name="fname"
                   placeholder="First Name"
                   onChange={handleInputChange}
                   required
                 />
               </div>
-              <div className="col-sm-6 form-group">
+              <div className="col-6 form-group">
                 <input
                   type="text"
-                  className="form-control form-control-sm"
+                  className="form-control form-control"
                   name="lname"
                   placeholder="Last Name"
                   onChange={handleInputChange}
@@ -87,7 +87,7 @@ export default function Signup() {
             <div className="form-group">
               <input
                 type="email"
-                className="form-control form-control-sm"
+                className="form-control form-control"
                 name="signUpEmail"
                 id="sign-up-email"
                 placeholder="Email"
@@ -98,7 +98,7 @@ export default function Signup() {
             <div className="form-group">
               <input
                 type="password"
-                className="form-control form-control-sm"
+                className="form-control form-control"
                 name="signUpPassword"
                 id="sign-up-password"
                 placeholder="Password"
@@ -145,7 +145,7 @@ export default function Signup() {
                 <div className="form-group d-inline-block">
                   <label htmlFor="skillLevel">Skill Level</label>
                   <select 
-                    className="btn btn-outline-secondary form-control form-control-sm" 
+                    className="btn btn-outline-secondary form-control form-control" 
                     name="skillLevel" 
                     id="skillLevel"
                     onChange={handleInputChange} 
@@ -174,7 +174,7 @@ export default function Signup() {
                       type="radio" 
                       name="gamePref" 
                       id="singles" 
-                      value="singles" 
+                      value="Singles" 
                       onFocus={handleInputChange}
                       required/> Singles
                     </label>
@@ -183,7 +183,7 @@ export default function Signup() {
                       type="radio" 
                       name="gamePref" 
                       id="doubles" 
-                      value="doubles"
+                      value="Doubles"
                       onFocus={handleInputChange}
                       /> Doubles
                     </label>
@@ -192,7 +192,7 @@ export default function Signup() {
                       type="radio" 
                       name="gamePref" 
                       id="both-game" 
-                      value="both"
+                      value="Both"
                       onFocus={handleInputChange}
                       /> Both
                     </label>
@@ -209,7 +209,7 @@ export default function Signup() {
                       type="radio" 
                       name="matchPrac" 
                       id="practice" 
-                      value="practice" 
+                      value="Practice" 
                       onFocus={handleInputChange}
                       required
                       /> Practice
@@ -219,7 +219,7 @@ export default function Signup() {
                       type="radio" 
                       name="matchPrac" 
                       id="match" 
-                      value="match"
+                      value="Match"
                       onFocus={handleInputChange}
                       /> Matches 
                     </label>
@@ -228,7 +228,7 @@ export default function Signup() {
                       type="radio" 
                       name="matchPrac" 
                       id="both-comp" 
-                      value="both"
+                      value="Both"
                       onFocus={handleInputChange}
                       /> Both 
                     </label>
@@ -240,7 +240,7 @@ export default function Signup() {
             <div className="row">
               <button 
               type="submit" 
-              className="btn btn-primary mx-auto col-6"
+              className="btn btn-primary sign-up-btn mx-auto col-6"
               onSubmit={handleSubmit}
               >Submit</button>
             </div>

@@ -1,68 +1,117 @@
-import { useLoaderData, useParams, Link } from 'react-router-dom'
+import { useLoaderData, useParams, Link, useNavigate } from 'react-router-dom'
 
-export default function CourtProfile() {
+import httpClient from "../httpClient";
+
+export default function CourtProfile(props) {
+  const { loggedIn } = props;
   const { id } = useParams();
-  const court = useLoaderData()
+  const data = useLoaderData()
+  const navigate = useNavigate();
+  console.log(data)
+
+  const handleAddCourt = async (event) => {
+    event.preventDefault();
+    try {
+      const response = await httpClient.post(
+        'http://localhost:5000/add-court',
+        { courtId: id }, 
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      navigate("/dashboard");
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  };
 
   return (
-    <div class="container mt-5">
-    <h1>Court Profile</h1>
-    <table class="table table-bordered">
-      <tbody>
-        <tr>
-          <th>Borough:</th>
-          <td>{ court.borough }</td>
-        </tr>
-        <tr>
-          <th>Name:</th>
-          <td>{ court.name }</td>
-        </tr>
-        <tr>
-          <th>Location:</th>
-          <td>{ court.location }</td>
-        </tr>
-        <tr>
-          <th>Phone:</th>
-          <td>{ court.phone }</td>
-        </tr>
-        <tr>
-          <th>Court Count:</th>
-          <td>{ court.court_count }</td>
-        </tr>
-        <tr>
-          <th>Indoor/Outdoor:</th>
-          <td>{ court.indoor_outdoor }</td>
-        </tr>
-        <tr>
-          <th>Surface:</th>
-          <td>{ court.surface }</td>
-        </tr>
-        <tr>
-          <th>Accessible:</th>
-          <td>{ court.accessible }</td>
-        </tr>
-      </tbody>
-    </table> 
-    {/* <h2>Preferred Players</h2>
-    <ul>
-      {% for player in court.pref_players %}
-        <li>{{ player.fname }} {{ player.lname }}</li>
-      {% endfor %}
-    </ul>
-    <h2>Players</h2>
-    <ul>
-      {% for player in court.players %}
-        <li>{{ player.name }}</li>
-      {% endfor %}
-    </ul>
-    <h2>Activities</h2>
-    <ul>
-      {% for activity in court.activities %}
-        <li>{{ activity.date }}</li>
-      {% endfor %}
-    </ul> */}
-    <Link to="/scheduler">Schedule a session</Link>  
-  </div>
+    <div className="container">
+      <div className="container text-center">
+        <h1 className="mb-3">Court Profile</h1>
+      </div>
+      <div className="row justify-content-center">
+        <div className="col-6">
+          <div className="table-responsive">
+            <table className="table table-bordered" id="court-table">
+              <tbody>
+                <tr>
+                  <th>Borough:</th>
+                  <td>{ data.court.borough }</td>
+                </tr>
+                <tr>
+                  <th>Name:</th>
+                  <td>{ data.court.name }</td>
+                </tr>
+                <tr>
+                  <th>Location:</th>
+                  <td>{ data.court.location }</td>
+                </tr>
+                <tr>
+                  <th>Phone:</th>
+                  <td>{ data.court.phone }</td>
+                </tr>
+                <tr>
+                  <th>Court Count:</th>
+                  <td>{ data.court.court_count }</td>
+                </tr>
+                <tr>
+                  <th>Indoor/Outdoor:</th>
+                  <td>{ data.court.indoor_outdoor }</td>
+                </tr>
+                <tr>
+                  <th>Surface:</th>
+                  <td>{ data.court.surface }</td>
+                </tr>
+                <tr>
+                  <th>Accessible:</th>
+                  <td>{ data.court.accessible }</td>
+                </tr>
+                <tr>
+                  <th>Coordinates:</th>
+                  <td>({ data.court.lat }, { data.court.long })</td>
+                </tr>
+              </tbody>
+            </table> 
+          </div>
+          {loggedIn && !data.players.some(player => player.id === loggedIn.id) && (
+            <div className="row justify-content-center my-4">
+              <div className="col-6">
+                <button 
+                  className="btn btn-primary court-add-btn w-100" 
+                  onClick={handleAddCourt}>
+                  Add Court
+                </button>
+              </div>
+            </div> 
+          )}
+        </div>
+        <div className="container equal-container">
+          <div className="row">
+            {data.players.map((player) => (
+              <div className="col-3 mb-4" key={player.id}>
+                <div className="card" id="player-cards">
+                  <div className="card-body">
+                    {player.photo ? (
+                      <img src={player.photo} alt="Profile" className="court-player-picture mb-3 mx-auto d-block" />
+                    ) : (
+                      <img src="temp-profile.jpeg" alt="Profile" className="court-player-picture mb-3 mx-auto d-block" />
+                    )}
+                    <h5 className="card-title text-center"><Link to={`/players/${player.id}`}>{player.fname} {player.lname} ({player.gender})</Link></h5>
+                    <div className="card-text" id="player-card-info">
+                      <p>{player.game_pref} / {player.skill_lvl.toFixed(1)}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
   )
 }
 

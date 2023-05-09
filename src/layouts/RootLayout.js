@@ -81,16 +81,6 @@ export default function RootLayout(props) {
           });
       };
       
-          // useEffect(() => {
-          //   fetch('/status')
-          //     .then((response) => response.json())
-          //     .then((data) => {
-          //      console.log(data.status)
-          //      setLoggedIn(boolean(data.status))
-          //     })
-          //     .catch((error) => console.error(error));
-          // }, [window.location.pathname]);
-      
       useEffect(() => {
           const loginPopup = document.getElementById("login-popup");
           if (showPopup) {
@@ -100,20 +90,6 @@ export default function RootLayout(props) {
           loginPopup.style.display = "none";
           }
       }, [showPopup]);
-
-      // useEffect(() => {
-      //   const navbar_logged_in = document.getElementById("navbar-logged-in");
-      //   const navbar_logged_out = document.getElementById("navbar-logged-out");
-      //   if (loggedIn) {
-      //     navbar_logged_in.style.display = "block";
-      //     navbar_logged_out.style.display = "none";
-      //   }
-      //   else {
-      //     navbar_logged_in.style.display = "none";
-      //     navbar_logged_out.style.display = "block";
-      //   }
-      // }, [loggedIn]);
-
 
       useEffect(() => {
           document.addEventListener("keydown", handleEscapeKey);
@@ -127,27 +103,33 @@ export default function RootLayout(props) {
     <div className="root-layout">
       <header>
         <nav>
-          <NavLink to="/">HOME</NavLink>
-          <NavLink to="players">PLAYERS</NavLink>
-          <NavLink to="courts">COURTS</NavLink>
-          {loggedIn ? (
-            <>
-              <NavLink to="dashboard">DASHBOARD</NavLink>
-              <button onClick={handleLogoutClick} id="logout-button">LOG OUT</button>
-            </>
-          ) : (
-            <>
-              <NavLink to="signup">SIGN UP</NavLink>
-              <button onClick={handleLoginClick} id="login-button">LOG IN</button>
-            </>
-            )}
+          <div className="nav-left">
+            <img src="logo.jpg" alt="tennis ball" id="logo"/>
+            <h1> Tennis Matchup </h1>
+          </div>
+          <div className="nav-right">
+            <NavLink to="/">HOME</NavLink>
+            <NavLink to="players">PLAYERS</NavLink>
+            <NavLink to="courts">COURTS</NavLink>
+            {loggedIn ? (
+              <>
+                <NavLink to="dashboard">DASHBOARD</NavLink>
+                <button onClick={handleLogoutClick} id="logout-button">LOG OUT</button>
+              </>
+            ) : (
+              <>
+                <NavLink to="signup">SIGN UP</NavLink>
+                <button onClick={handleLoginClick} id="login-button">LOG IN</button>
+              </>
+              )}
+          </div>
         </nav>
 
         <div className="popup" onClick={handlePopupClick} id="login-popup">
           <div className="popup-content">
             {alertMessage}
             <button type="button" className="close" onClick={handlePopupClose}>&times;</button>
-            <p>If you are not already a member you can click <Link to="signup" onClick={handlePopupClick}>here</Link></p>
+            <p className="popup-signup">If you are not already a member you can click <Link to="signup" onClick={handlePopupClick}>here</Link></p>
             <form onSubmit={handleLoginFormSubmit}>
               <div className="form-group">
                 <label htmlFor="email">Email:</label>
@@ -157,14 +139,10 @@ export default function RootLayout(props) {
                 <label htmlFor="password">Password:</label>
                 <input type="password" className="form-control" id="password" name="password" required />
               </div>
-              {/* <div className="form-check">
-                <input type="checkbox" className="form-check-input" id="remember-me" name="rememberMe" />
-                <label className="form-check-label" htmlFor="remember-me">Remember me</label>
-              </div> */}
               <button type="submit" className="btn btn-primary">Login</button>
             </form>
-            Lost your email or password?
-            Click <Link to="reset-password" onClick={handlePopupClick}>here</Link> to get them resent to your email address.
+            {/* Lost your email or password?
+            Click <Link to="reset-password" onClick={handlePopupClick}>here</Link> to get them resent to your email address. */}
           </div>
         </div>
       </header>

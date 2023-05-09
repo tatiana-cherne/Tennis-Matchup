@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from 'react-router-dom';
 import httpClient from "../httpClient"
 // import 'bootstrap/dist/css/bootstrap.min.css';
 // import 'bootstrap/dist/js/bootstrap.bundle.min.js';
@@ -13,11 +14,6 @@ export default function Players(props) {
 
   useEffect(() => {
     const url = showFriends ? "http://localhost:5000/friends" : "http://localhost:5000/all-players";
-    // httpClient.get(url, {
-    //   method: 'GET',
-    //   credentials: 'include',
-    //   mode:'cors'
-    // })
     httpClient.get(url)
     .then((response) => {
       let filteredPlayers = response.data;
@@ -61,20 +57,21 @@ export default function Players(props) {
   };
 
 return (
-    <div>
-      <div className="container equal-container"> 
-        <div className="header mb-3">
+    <div className="container">
+      <div className="equal-container"> 
+        <div className="header mb-3 text-center">
           <h1 className="mb-0">Tennis Players</h1>
         </div>
       </div>
-      <div className="container">
-        <div className="card mb-3">
+
+      <div className="container mb-3">
+        <div className="card mb-3" id="player-form-inputs">
           <div className="card-body">
             <form className="form-inline justify-content-around">
               
-              <div className="form-group mb-2">
+              <div className="form-group mb-3">
                 <label className="mr-2">Gender:</label>
-                <div className="btn-group btn-group-toggle" data-toggle="buttons">
+                <div className="btn-group btn-group-toggle custom-toggle" data-toggle="buttons">
                   <label className="btn btn-outline-secondary btn-equal-width">
                     <input onFocus={handleGenderChange} type="checkbox" name="gender" value="M"/> Male
                   </label>
@@ -84,9 +81,9 @@ return (
                 </div>
               </div>
               
-              <div className="form-group mb-2">
+              <div className="form-group mb-3">
                 <label className="mr-2">Skill Level:</label>
-                <div className="btn-group btn-group-toggle" data-toggle="buttons">
+                <div className="btn-group btn-group-toggle custom-toggle" data-toggle="buttons">
                   <label className="btn btn-outline-secondary btn-equal-width">
                     <input onFocus={handleSkillLevelChange} type="checkbox" name="skill-checkbox-buttons" value="2.5" /> 2.5
                   </label>
@@ -108,7 +105,7 @@ return (
                 </div>
               </div>
               {loggedIn ? (
-                <div className="form-check mb-2">
+                <div className="form-check mb-3">
                     <input checked={showFriends} onChange={handleCheckboxChange} className="form-check-input" type="checkbox" id="friendsCheckbox" name="friendsCheckbox"></input>
                     <label className="form-check-label" htmlFor="friendsCheckbox">Friends Only</label>
                 </div>
@@ -117,31 +114,30 @@ return (
           </div>
         </div>
       </div>
-
+      
+     
       <div className="container equal-container">
-        <table className="table table-striped align-middle mb-0 bg-white" id="players-table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Gender</th>
-              <th>Skill Level</th>
-              <th>Game Preference</th>
-              <th>Join Date</th>
-            </tr>
-          </thead>
-          <tbody>
-            {players.map((player) => (
-              <tr key={player.id}>
-                <td><a href={`/players/${player.id}`}> { player.fname } { player.lname }</a></td>
-                <td>{player.gender}</td>
-                <td>{player.skill_lvl.toFixed(1)}</td>
-                <td>{player.game_pref}</td>
-                <td>{player.join_date.substring(0,4)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="row">
+          {players.map((player) => (
+            <div className="col-3 mb-4" key={player.id}>
+              <div className="card" id="player-cards">
+                <div className="card-body">
+                  {player.photo ? (
+                    <img src={player.photo} alt="Profile" className="player-picture mb-3 mx-auto d-block" />
+                  ) : (
+                    <img src="temp-profile.jpeg" alt="Profile" className="player-picture mb-3 mx-auto d-block" />
+                  )}
+                  <h5 className="card-title text-center"><Link to={`/players/${player.id}`}>{player.fname} {player.lname} ({player.gender})</Link></h5>
+                  <div className="card-text" id="player-card-info">
+                    <p>{player.game_pref} / {player.skill_lvl.toFixed(1)}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
+
     </div>
   );
 }

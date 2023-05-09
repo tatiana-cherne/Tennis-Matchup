@@ -3,7 +3,8 @@
 import os
 import json
 from random import choice, randint, sample
-from datetime import datetime
+from datetime import datetime, timedelta
+from hashlib import sha256
 
 import crud
 import model
@@ -17,6 +18,8 @@ os.system("createdb tennis")
 model.connect_to_db(server.app)
 model.db.create_all()
 
+
+### COURTS ###
 # Load court data from JSON file
 with open("data/DPR_courts.json") as f:
     court_data = json.load(f)
@@ -54,16 +57,22 @@ for court in court_data:
 
 model.db.session.add_all(public_courts)
 
+
+### PLAYERS, USERS ###
 # Load fake player data from JSON file
 with open("data/playerdata.json") as f:
     all_player_data = json.load(f)
 
-# Create n players, player_data contains 50 as of last output
-n = 50
+# Create 41 players, player_data contains 41 as of last output
+n = 41
 players = []
+users = []
 
 for i in range(n):
     player_data = all_player_data[i]
+
+    # Randomly pick 5 courts, one will be the favorite
+    pref_courts = sample(public_courts, 5)
 
     db_player = crud.create_player(
         fname = player_data["fname"],
@@ -72,66 +81,81 @@ for i in range(n):
         skill_lvl = player_data["init_lvl"],
         game_pref = player_data["game_pref"], 
         join_date = player_data["join_date"],
-        pref_court = choice(public_courts))
-    
+        pref_court = choice(pref_courts),
+        photo = player_data["photo"])
+
+    db_player.courts = pref_courts
     players.append(db_player)
-    
-model.db.session.add_all(players)
+    model.db.session.add(db_player)
+    model.db.session.commit()
 
-# Load fake player data from JSON file
-with open("data/userdata.json") as f:
-    all_user_data = json.load(f)
-
-# Create n players, player_data contains 50 as of last output
-n = 50
-users = []
-
-for i in range(n):
-    user_data = all_user_data[i]
+    password = player_data["password"]
+    hashed_password = sha256(password.encode()).hexdigest()
 
     db_user = crud.create_user(
-        player_id=user_data["player_id"],
-        email=user_data["email"],
-        password=user_data["password"])
+        player_id = db_player.id,
+        email = player_data["email"],
+        password = hashed_password)
     
-    players.append(db_user)
+    model.db.session.add(db_user)
+    model.db.session.commit()
+
+### ACTIVITIES ###
+# Will create [a_count] # of activities where 
+# 0 to n players submit a rating
+a_count = 100
     
-model.db.session.add_all(users)
-
-# # Will create [a_count] # of activities where 
-# # 0 to n players submit a rating
-# a_count = 30
+for i in range(a_count):
     
-# for i in range(a_count):
-
-#     db_activity = crud.create_activity(
-#         date = datetime.now(),
-#         court = choice(public_courts),
-#         match_type = choice(["match", "practice"]),
-#         score = "SCORE")
-
-#     # Randomly choose if activity was singles (2) or doubles (4)
-#     player_count = choice([2, 4])
-#     players_on_court = sample(players, player_count)
+    # Generate random date from the past month
+    now = datetime.now()
+    start = now - timedelta(days=30)
     
-#     # Add players to activity
-#     for p in players_on_court:
-#         db_activity.players.append(p)
+    random_date = start + timedelta(
+        days=randint(0, 30),
+        hours=randint(0, 23),
+        minutes=randint(0, 59),
+        seconds=randint(0, 59),
+    )
 
-#     model.db.session.add(db_activity)
+    db_activity = crud.create_activity(
+        date = random_date,
+        court = choice(public_courts),
+        match_type = choice(["Match", "Practice"]),
+        score = "SCORE")
 
-#     # Choose 2 players from activity and submit 1 rating
-#     rating_pair = sample(players_on_court, 2)
-
-#     db_rating = crud.create_rating(
-#         player = rating_pair[0],
-#         commenter = rating_pair[1],
-#         activity = db_activity,
-#         lvl_rating = choice([2.5, 3.0, 3.5, 4.0, 4.5, 5.0]),
-#         comments = f"Comments on Player",
-#         created_at = datetime.now())
+    # # Randomly choose if activity was singles (2) or doubles (4)
+    # player_count = choice([2, 4])
+    # players_on_court = sample(players, player_count)
     
-#     model.db.session.add(db_rating)
+    # Add players to activity
+    players_on_court = sample(players, 2)
+    for p in players_on_court:
+        db_activity.players.append(p)
+
+    model.db.session.add(db_activity)
+    model.db.session.commit()
+
+    # Choose 2 players from activity and submit 1 rating
+    player1, player2 = rating_pair = sample(players_on_court, 2)
+
+    db_rating_1 = crud.create_rating(
+        player_id = player1.id,
+        commenter_id = player2.id,
+        activity_id = db_activity.id,
+        lvl_rating = choice([2.5, 3.0, 3.5, 4.0, 4.5, 5.0]),
+        comments = f"Comments on Player",
+        created_at = random_date)
+    
+    db_rating_2 = crud.create_rating(
+        player_id = player2.id,
+        commenter_id = player1.id,
+        activity_id = db_activity.id,
+        lvl_rating = choice([2.5, 3.0, 3.5, 4.0, 4.5, 5.0]),
+        comments = f"Comments on Player",
+        created_at = random_date)
+    
+    model.db.session.add(db_rating_1, db_rating_2)
 
 model.db.session.commit()
 
